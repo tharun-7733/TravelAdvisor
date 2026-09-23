@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@font-face {
+  font-family: 'Dirtyline';
+  src: url('https://fonts.cdnfonts.com/s/15011/Dirtyline36DaysofType.woff') format('woff');
+  font-weight: normal; font-style: normal; font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; font-family: 'Barlow', sans-serif; background: #000; color: #fff; }
+
+.liquid-glass {
+  background: rgba(255,255,255,0.01);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
+  position: relative; overflow: hidden;
+}
+.liquid-glass::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.4px;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
+    rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+    rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+}
+
+/* Markdown result styles */
+.result-prose h3 { font-size: 1.1rem; font-weight: 600; color: #fff; margin: 1.5rem 0 0.5rem; }
+.result-prose h4 { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.85); margin: 1.2rem 0 0.4rem; }
+.result-prose p { color: rgba(255,255,255,0.7); font-size: 0.88rem; line-height: 1.7; margin-bottom: 0.8rem; }
+.result-prose ul, .result-prose ol { color: rgba(255,255,255,0.7); font-size: 0.88rem; line-height: 1.7; padding-left: 1.2rem; margin-bottom: 0.8rem; }
+.result-prose li { margin-bottom: 0.25rem; }
+.result-prose strong { color: #fff; font-weight: 600; }
+.result-prose hr { border-color: rgba(255,255,255,0.08); margin: 1.5rem 0; }
