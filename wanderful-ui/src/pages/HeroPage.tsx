@@ -54,10 +54,10 @@ export default function HeroPage() {
       <main className="relative z-20 flex-1 flex flex-col items-center justify-between pt-[8vh] pb-14 px-4">
         {/* Top Text */}
         <div className={`flex flex-col items-center text-center transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-          <h1 style={{ fontWeight: 400, fontSize: 'clamp(40px, 5.4vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.02em', color: '#fff' }}>
+          <h1 style={{ fontWeight: 400, fontSize: 'clamp(40px, 5.4vw, 72px)', lineHeight: 2.0, letterSpacing: '-0.02em', color: '#fff' }}>
             Venture without edges.
           </h1>
-          <p style={{ fontWeight: 400, fontSize: 'clamp(40px, 5.4vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.02em', color: 'rgba(255,255,255,0.55)', marginTop: '2px' }}>
+          <p style={{ fontWeight: 400, fontSize: 'clamp(40px, 5.4vw, 72px)', lineHeight: 1.0, letterSpacing: '-0.02em', color: 'rgba(255,255,255,0.55)', marginTop: '2px' }}>
             Uncover with keen instinct.
           </p>
         </div>
@@ -80,7 +80,7 @@ export default function HeroPage() {
           <div className="flex items-center gap-2">
             <Lock size={13} strokeWidth={1.5} className="text-white/70" />
             <span className="text-white/70 font-medium" style={{ fontSize: '11px', letterSpacing: '0.14em' }}>
-              SECURE BY DESIGN. ZERO DATA LEAKS.
+              You're Secure
             </span>
           </div>
         </div>

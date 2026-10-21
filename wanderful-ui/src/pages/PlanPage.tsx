@@ -71,8 +71,11 @@ export default function PlanPage() {
         }
       }
       
+      // If the loop finished without receiving 'complete' or 'error'
+      setError('The server closed the connection before completing the guide.')
+      setLoading(false)
     } catch (err: any) {
-      setError(err.message || 'Something went wrong')
+      setError(err.message || 'Something went wrong connecting to the backend.')
       setLoading(false)
     }
   }

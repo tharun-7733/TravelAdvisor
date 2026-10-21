@@ -4,7 +4,6 @@ const NAV_LINKS = [
   { label: 'JOURNEY', href: '/' },
   { label: 'BENEFITS', href: '/#benefits' },
   { label: 'ABOUT', href: '/about' },
-  { label: 'JOURNAL', href: '/#journal' },
   { label: 'GUIDEBOOK', href: '/#guidebook' },
 ]
 
@@ -13,14 +12,14 @@ export default function Header() {
   const location = useLocation()
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex items-center px-10 py-6" style={{ height: '72px' }}>
+    <header className="fixed top-0 left-0 right-40 z-50 flex items-center px-10 py-6" style={{ height: '72px' }}>
       {/* Brand – left */}
       <button
         onClick={() => navigate('/')}
         className="text-white cursor-pointer bg-transparent border-none shrink-0"
         style={{ fontSize: '17px', fontWeight: 600, letterSpacing: '-0.02em' }}
       >
-        Wanderful<sup className="text-[10px] ml-0.5 align-super opacity-70">TM</sup>
+        <span style={{ fontFamily: '"Dirtyline", sans-serif' }}>Voyaura</span><sup className="text-[10px] ml-0.5 align-super opacity-70">TM</sup>
       </button>
 
       {/* Nav – absolutely centred */}
@@ -52,15 +51,6 @@ export default function Header() {
           )
         })}
       </nav>
-
-      {/* CTA – right */}
-      <button
-        onClick={() => navigate('/plan')}
-        className="liquid-glass rounded-full px-5 py-2.5 text-white/90 hover:text-white transition-colors duration-200 cursor-pointer ml-auto shrink-0"
-        style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.12em' }}
-      >
-        GET ROAMING
-      </button>
     </header>
   )
 }
