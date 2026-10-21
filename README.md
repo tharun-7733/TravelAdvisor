@@ -233,9 +233,3 @@ Healthcheck endpoint returning server status.
 - **Frontend**: React 19, TypeScript, Tailwind CSS v4, Lucide React, React Router v7, React Markdown.
 - **Backend**: FastAPI, Uvicorn, LangGraph, LangChain, Groq SDK.
 - **LLM**: Groq model configured by `GROQ_MODEL` (defaults to `openai/gpt-oss-120b`).
-
----
-
-## 📄 License
-
-This project is open-source and available under the [MIT License](LICENSE).
