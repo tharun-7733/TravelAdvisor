@@ -47,9 +47,7 @@ export default function HeroPage() {
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%)' }} />
       </div>
 
-      <div className="relative z-20">
-        <Header />
-      </div>
+      <Header />
 
       <main className="relative z-20 flex-1 flex flex-col items-center justify-between pt-[8vh] pb-14 px-4">
         {/* Top Text */}

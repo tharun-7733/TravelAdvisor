@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 const NAV_LINKS = [
@@ -10,6 +11,16 @@ const NAV_LINKS = [
 export default function Header() {
   const navigate = useNavigate()
   const location = useLocation()
+
+  useEffect(() => {
+    if (location.hash) {
+      requestAnimationFrame(() => {
+        document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [location.pathname, location.hash])
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center px-10 py-6" style={{ height: '72px' }}>
@@ -35,10 +46,11 @@ export default function Header() {
           return (
             <a
               key={label}
-              href={href.startsWith('/') && !href.includes('#') ? undefined : href}
-              onClick={href.startsWith('/') && !href.includes('#')
-                ? (e) => { e.preventDefault(); navigate(href) }
-                : undefined}
+              href={href}
+              onClick={e => {
+                e.preventDefault()
+                navigate(href)
+              }}
               className={`px-4 py-1.5 rounded-full transition-all duration-200 cursor-pointer ${
                 isActive
                   ? 'bg-white/10 text-white'
