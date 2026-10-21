@@ -105,6 +105,10 @@ async def stream_trip(req: TripRequest):
         if final_state.get("final_plan"):
             yield send("complete", {
                 "final_plan": final_state["final_plan"],
+                "destination": req.destination,
+                "travel_dates": req.travel_dates,
+                "travelers": req.travelers,
+                "budget": req.budget,
                 "destination_info": final_state.get("destination_info", ""),
                 "itinerary": final_state.get("itinerary", ""),
                 "budget_estimate": final_state.get("budget_estimate", ""),

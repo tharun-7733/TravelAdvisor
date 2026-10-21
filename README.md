@@ -19,7 +19,7 @@
 - 💻 **Dual Mode Support**:
   - **Web Application**: Interactive web interface running on Vite (`http://localhost:5173`).
   - **CLI Tool**: Interactive terminal application (`python main.py`) that exports `.txt` travel guides.
-- 🛡️ **Resilient LLM Layer**: Powered by Groq's ultra-fast Llama 3 models, equipped with rate-limiting, error trapping, and an intelligent offline demo fallback.
+- 🛡️ **LLM Error Handling**: Powered by Groq's ultra-fast Llama 3 models, with rate limiting, one retry for transient errors, and clear configuration/provider errors instead of fabricated travel results.
 - 📤 **Shareable Itineraries**: Native web share integration and formatted Markdown rendering for easy reading and export.
 
 ---
@@ -132,7 +132,7 @@ Travel_advisor/
    ```env
    GROQ_API_KEY="your-groq-api-key-here"
    ```
-   > *Note: If no API key is configured or the key is invalid, Voyaura automatically switches to demo/fallback mode so you can preview the complete user flow without interruptions.*
+   > *A missing or invalid API key is reported as an error. The planner does not generate placeholder recommendations.*
 
 5. **Start the FastAPI server**:
    ```bash

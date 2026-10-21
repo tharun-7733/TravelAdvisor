@@ -6,6 +6,10 @@ import Header from '../components/Header'
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 interface ResultData {
   final_plan: string
+  destination?: string
+  travel_dates?: string
+  travelers?: number
+  budget?: string
   destination_info?: string
   itinerary?: string
   budget_estimate?: string
@@ -32,7 +36,7 @@ function splitSections(md: string) {
 
 function extractDestination(md: string): string {
   const match = md.match(/^#+ (.+)/m)
-  return match ? match[1].replace(/[*_`]/g, '').trim() : 'Your Trip'
+  return match ? match[1].replace(/[*_`]/g, '').trim() : ''
 }
 
 // Pull bullet list items from a markdown block
@@ -129,7 +133,7 @@ export default function ResultPage() {
   }
 
   const md = data.final_plan
-  const destination = extractDestination(md)
+  const destination = data.destination || extractDestination(md)
   const sections = splitSections(md)
 
   // Map sections roughly by heading keywords
@@ -232,9 +236,12 @@ export default function ResultPage() {
   const packItems = weatherSec ? bullets(weatherSec.content.join('\n')) : []
 
   // Overview chips
+  const itineraryDayCount = (data.itinerary?.match(/day \d+/gi) || []).length
+    || sections.filter(s => s.heading.toLowerCase().includes('day')).length
   const chipInfo = [
-    data.itinerary ? `${(data.itinerary.match(/day \d+/gi) || []).length || sections.filter(s => s.heading.toLowerCase().includes('day')).length || 3} days` : null,
-    data.budget_estimate ? 'Mid-range' : null,
+    itineraryDayCount > 0 ? `${itineraryDayCount} days` : null,
+    data.budget ? data.budget.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : null,
+    data.travelers ? `${data.travelers} traveler${data.travelers === 1 ? '' : 's'}` : null,
     destination,
   ].filter(Boolean) as string[]
 
