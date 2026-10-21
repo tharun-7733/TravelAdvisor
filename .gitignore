@@ -1,0 +1,13 @@
+.env
+.env.local
+__pycache__/
+*.py[cod]
+*$py.class
+myenv/
+venv/
+.DS_Store
+*.log
+wanderful-ui/dist/
+wanderful-ui/node_modules/
+*.html
+!wanderful-ui/index.html

@@ -1,20 +1,32 @@
 import asyncio
 import json
+import threading
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from graph import build_graph
 
-app = FastAPI(title="Wanderful Travel Advisor API")
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+app = FastAPI(title="Voyaura Travel Advisor API")
+
+# Set CORS_ORIGINS on Render as comma-separated allowed origins
+# e.g. CORS_ORIGINS=https://voyaura.vercel.app,https://www.voyaura.com
+_raw = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173")
+ALLOWED_ORIGINS = [o.strip() for o in _raw.split(",") if o.strip()]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 AGENT_LABELS = {
     "destination_agent": "Destination Expert",
@@ -56,40 +68,53 @@ async def stream_trip(req: TripRequest):
     def send(event_type: str, data: dict) -> str:
         return f"data: {json.dumps({'type': event_type, **data})}\n\n"
 
-    yield send("start", {"message": "Your travel team is on it!"})
+    yield send("start", {"message": f"Assembling your travel team for {req.destination}..."})
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
+    queue = asyncio.Queue()
 
-    def run_graph():
-        results = []
-        for event in graph.stream(initial_state, stream_mode="values"):
-            results.append(event)
-        return results
+    def run_worker():
+        try:
+            for event in graph.stream(initial_state, stream_mode="values"):
+                loop.call_soon_threadsafe(queue.put_nowait, ("event", event))
+            loop.call_soon_threadsafe(queue.put_nowait, ("done", None))
+        except Exception as e:
+            loop.call_soon_threadsafe(queue.put_nowait, ("error", str(e)))
 
-    events = await loop.run_in_executor(None, run_graph)
+    worker_thread = threading.Thread(target=run_worker, daemon=True)
+    worker_thread.start()
 
-    for event in events:
-        newly_completed = set(event.get("completed_agents", [])) - completed_set
-        for agent in newly_completed:
-            label = AGENT_LABELS.get(agent, agent)
-            yield send("agent_done", {"agent": agent, "label": label})
-            completed_set.add(agent)
-            await asyncio.sleep(0)
+    try:
+        while True:
+            msg_type, payload = await queue.get()
+            if msg_type == "error":
+                yield send("error", {"message": f"Planning error: {payload}"})
+                return
+            elif msg_type == "done":
+                break
+            elif msg_type == "event":
+                event = payload
+                newly_completed = set(event.get("completed_agents", [])) - completed_set
+                for agent in newly_completed:
+                    label = AGENT_LABELS.get(agent, agent)
+                    yield send("agent_done", {"agent": agent, "label": label})
+                    completed_set.add(agent)
+                if event.get("final_plan"):
+                    final_state = event
 
-        if event.get("final_plan"):
-            final_state = event
-
-    if final_state.get("final_plan"):
-        yield send("complete", {
-            "final_plan": final_state["final_plan"],
-            "destination_info": final_state.get("destination_info", ""),
-            "itinerary": final_state.get("itinerary", ""),
-            "budget_estimate": final_state.get("budget_estimate", ""),
-            "hotel_recommendations": final_state.get("hotel_recommendations", ""),
-            "weather_info": final_state.get("weather_info", ""),
-        })
-    else:
-        yield send("error", {"message": "Something went wrong. Please try again."})
+        if final_state.get("final_plan"):
+            yield send("complete", {
+                "final_plan": final_state["final_plan"],
+                "destination_info": final_state.get("destination_info", ""),
+                "itinerary": final_state.get("itinerary", ""),
+                "budget_estimate": final_state.get("budget_estimate", ""),
+                "hotel_recommendations": final_state.get("hotel_recommendations", ""),
+                "weather_info": final_state.get("weather_info", ""),
+            })
+        else:
+            yield send("error", {"message": "Unable to assemble final plan. Please try again."})
+    except Exception as e:
+        yield send("error", {"message": f"Server error: {str(e)}"})
 
 
 @app.post("/api/plan")
@@ -104,6 +129,8 @@ async def plan_trip(req: TripRequest):
     )
 
 
+@app.get("/")
+@app.get("/health")
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "service": "Wanderful Travel Advisor"}
+    return {"status": "ok", "service": "Voyaura Travel Advisor"}
