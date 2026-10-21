@@ -15,7 +15,7 @@ app = FastAPI(title="Voyaura Travel Advisor API")
 
 # Set CORS_ORIGINS on Render as comma-separated allowed origins
 # e.g. CORS_ORIGINS=https://voyaura.vercel.app,https://www.voyaura.com
-_raw = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173")
+_raw = os.getenv("CORS_ORIGINS", "https://travel-advisor-zeta.vercel.app/")
 ALLOWED_ORIGINS = [o.strip() for o in _raw.split(",") if o.strip()]
 
 app.add_middleware(
