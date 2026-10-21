@@ -24,7 +24,8 @@ export default function PlanPage() {
     setStatusMsg('Assembling your travel team...')
 
     try {
-      const response = await fetch('http://localhost:8000/api/plan', {
+      const API_BASE = import.meta.env.VITE_API_URL || ''
+      const response = await fetch(`${API_BASE}/api/plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
