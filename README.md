@@ -131,8 +131,9 @@ Travel_advisor/
    Create or edit the `.env` file in the project root:
    ```env
    GROQ_API_KEY="your-groq-api-key-here"
+   GROQ_MODEL="openai/gpt-oss-120b"
    ```
-   > *A missing or invalid API key is reported as an error. The planner does not generate placeholder recommendations.*
+   > *GROQ_MODEL is optional; it defaults to `openai/gpt-oss-120b`. Choose a model enabled for your Groq account. A missing key or unavailable model is reported as an error; the planner does not generate placeholder recommendations.*
 
 5. **Start the FastAPI server**:
    ```bash
@@ -231,7 +232,7 @@ Healthcheck endpoint returning server status.
 
 - **Frontend**: React 19, TypeScript, Tailwind CSS v4, Lucide React, React Router v7, React Markdown.
 - **Backend**: FastAPI, Uvicorn, LangGraph, LangChain, Groq SDK.
-- **LLM**: Groq `llama-3.3-70b-versatile` / `llama-3.1-8b-instant`.
+- **LLM**: Groq model configured by `GROQ_MODEL` (defaults to `openai/gpt-oss-120b`).
 
 ---
 

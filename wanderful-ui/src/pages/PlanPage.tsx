@@ -7,7 +7,8 @@ export default function PlanPage() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     destination: '',
-    travel_dates: '',
+    start_date: '',
+    end_date: '',
     travelers: 1,
     budget: 'mid-range'
   })
@@ -17,7 +18,11 @@ export default function PlanPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.destination || !formData.travel_dates) return
+    if (!formData.destination || !formData.start_date || !formData.end_date) return
+    if (formData.end_date < formData.start_date) {
+      setError('The end date must be on or after the start date.')
+      return
+    }
 
     setLoading(true)
     setError('')
@@ -28,7 +33,12 @@ export default function PlanPage() {
       const response = await fetch(`${API_BASE}/api/plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          destination: formData.destination,
+          travel_dates: `${formData.start_date} to ${formData.end_date}`,
+          travelers: formData.travelers,
+          budget: formData.budget,
+        })
       })
 
       if (!response.ok || !response.body) {
@@ -89,7 +99,7 @@ export default function PlanPage() {
       <Header />
 
       {/* pt-[72px] offsets the fixed header; then we add breathing room */}
-      <main className="flex-1 flex flex-col items-center px-4 pt-[72px] pb-16 sm:px-6">
+      <main id="guidebook" className="flex-1 flex flex-col items-center px-4 pt-[72px] pb-16 sm:px-6 scroll-mt-24">
 
         {/* Page header */}
         <div className="w-full max-w-2xl text-center pt-14 pb-10">
@@ -134,26 +144,28 @@ export default function PlanPage() {
               </div>
             </div>
 
-            {/* DATES */}
-            <div className="flex flex-col gap-2">
-              <label
-                className="text-white/55 uppercase tracking-[0.13em]"
-                style={{ fontSize: '10px', fontWeight: 600 }}
-              >
-                Dates
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 pointer-events-none" />
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. December 2025, 2 weeks"
-                  value={formData.travel_dates}
-                  onChange={e => setFormData({ ...formData, travel_dates: e.target.value })}
-                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl pl-11 pr-4 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/25 focus:bg-white/[0.06] transition-all"
-                  style={{ height: '48px' }}
-                />
-              </div>
+            {/* DATE RANGE */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {[['start_date', 'Start date'], ['end_date', 'End date']].map(([field, label]) => (
+                <div className="flex flex-col gap-2" key={field}>
+                  <label htmlFor={field} className="text-white/55 uppercase tracking-[0.13em]" style={{ fontSize: '10px', fontWeight: 600 }}>
+                    {label}
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 pointer-events-none" />
+                    <input
+                      id={field}
+                      type="date"
+                      required
+                      min={field === 'end_date' ? formData.start_date : undefined}
+                      value={formData[field as 'start_date' | 'end_date']}
+                      onChange={e => setFormData({ ...formData, [field]: e.target.value })}
+                      className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl pl-11 pr-4 text-white text-sm focus:outline-none focus:border-white/25 focus:bg-white/[0.06] transition-all"
+                      style={{ height: '48px', colorScheme: 'dark' }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* TRAVELERS + BUDGET row */}

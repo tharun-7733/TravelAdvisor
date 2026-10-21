@@ -43,7 +43,7 @@ export default function AboutPage() {
       <Header />
 
       {/* Hero */}
-      <section className="relative flex flex-col items-center justify-center text-center px-6 pt-40 pb-24 overflow-hidden">
+      <section id="about" className="relative flex flex-col items-center justify-center text-center px-6 pt-40 pb-24 overflow-hidden scroll-mt-24">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-white/[0.04] blur-[120px] rounded-full pointer-events-none" />
         <div
           className={`transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
@@ -67,7 +67,7 @@ export default function AboutPage() {
       <div className="w-full max-w-4xl mx-auto px-6"><div className="h-px bg-white/[0.07]" /></div>
 
       {/* Pillars */}
-      <section className="max-w-4xl w-full mx-auto px-6 py-20 grid grid-cols-1 sm:grid-cols-2 gap-8">
+      <section id="benefits" className="max-w-4xl w-full mx-auto px-6 py-20 grid grid-cols-1 sm:grid-cols-2 gap-8 scroll-mt-24">
         {PILLARS.map(({ icon: Icon, title, body }, i) => (
           <div
             key={title}

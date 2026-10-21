@@ -14,6 +14,7 @@ class RateLimitedLLM:
         self.delay_seconds = delay_seconds
         self.client = None
         self.configuration_error = None
+        self.model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b").strip()
 
         if not api_key:
             self.configuration_error = "GROQ_API_KEY is not configured. Add it to the backend environment and restart the server."
@@ -21,10 +22,11 @@ class RateLimitedLLM:
 
         try:
             self.client = ChatGroq(
-                model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+                model=self.model,
                 temperature=0.7,
                 api_key=api_key,
                 max_tokens=900,
+                reasoning_effort="low",
                 max_retries=0,
             )
         except Exception as exc:
@@ -41,6 +43,11 @@ class RateLimitedLLM:
             message = str(first_error).lower()
             if any(term in message for term in ("invalid_api_key", "invalid api key", "401", "unauthenticated")):
                 raise RuntimeError("Groq rejected GROQ_API_KEY. Check the backend environment variable and restart the server.") from first_error
+            if "model_not_found" in message or "does not exist or you do not have access" in message:
+                raise RuntimeError(
+                    f"Groq model {self.model!r} is unavailable to this account. "
+                    "Set GROQ_MODEL to an active model enabled for your Groq account (for example, openai/gpt-oss-120b), then restart the backend."
+                ) from first_error
 
             time.sleep(3.0)
             try:

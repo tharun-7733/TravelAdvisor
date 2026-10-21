@@ -2,9 +2,9 @@ import { useNavigate, useLocation } from 'react-router-dom'
 
 const NAV_LINKS = [
   { label: 'JOURNEY', href: '/' },
-  { label: 'BENEFITS', href: '/#benefits' },
+  { label: 'BENEFITS', href: '/about#benefits' },
   { label: 'ABOUT', href: '/about' },
-  { label: 'GUIDEBOOK', href: '/#guidebook' },
+  { label: 'GUIDEBOOK', href: '/plan#guidebook' },
 ]
 
 export default function Header() {
@@ -12,7 +12,7 @@ export default function Header() {
   const location = useLocation()
 
   return (
-    <header className="fixed top-0 left-0 right-40 z-50 flex items-center px-10 py-6" style={{ height: '72px' }}>
+    <header className="fixed top-0 left-0 right-0 z-50 flex items-center px-10 py-6" style={{ height: '72px' }}>
       {/* Brand – left */}
       <button
         onClick={() => navigate('/')}
