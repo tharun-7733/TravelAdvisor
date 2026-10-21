@@ -1,0 +1,26 @@
+fastapi==0.119.1
+uvicorn==0.34.3
+pydantic==2.12.4
+python-dotenv==1.2.1
+starlette==0.48.0
+sse-starlette==3.0.3
+anyio==4.12.1
+httpx==0.28.1
+
+# LangChain + LangGraph
+langchain==0.3.25
+langchain-core==0.3.86
+langchain-text-splitters==0.3.11
+langchain-openai==1.6.3
+langchain-anthropic==1.7.2
+langchain-groq==0.2.5
+langgraph==0.2.76
+langgraph-checkpoint==2.1.2
+langgraph-prebuilt==1.1.0
+
+# LLM providers
+openai==3.17.0
+anthropic==1.7.0
+groq==0.37.1
+google-generativeai==0.8.6
+google-genai==1.62.0
