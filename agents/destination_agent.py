@@ -1,5 +1,5 @@
 from langchain_core.messages import SystemMessage, HumanMessage
-from LLM import llm
+from LLM import llm_for_agent
 
 def run_destination_agent(state: dict) -> dict:
     destination = state["destination"]
@@ -16,5 +16,5 @@ We are {travelers} traveler(s) going around {travel_dates}.
 Cover: top attractions, hidden gems, local culture and customs, language tips, 
 safety, best neighborhoods to explore, and any must-know practical information.""")
 
-    response = llm.invoke([system, human])
+    response = llm_for_agent("destination_agent").invoke([system, human])
     return {**state, "destination_info": response.content}

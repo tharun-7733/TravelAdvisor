@@ -1,5 +1,5 @@
 from langchain_core.messages import SystemMessage, HumanMessage
-from LLM import llm
+from LLM import llm_for_agent
 
 def run_hotel_agent(state: dict) -> dict:
     destination = state["destination"]
@@ -17,5 +17,5 @@ f"around {travel_dates} with a {budget_range} budget. "
 f"Context: {destination_info} "
 f"For each: name, neighborhood, why it stands out, and rough nightly cost. Keep it concise.")
 
-    response = llm.invoke([system, human])
+    response = llm_for_agent("hotel_agent").invoke([system, human])
     return {**state, "hotel_recommendations": response.content}

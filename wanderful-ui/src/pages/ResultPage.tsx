@@ -48,6 +48,45 @@ function bullets(text: string): string[] {
     .filter(Boolean)
 }
 
+type ItineraryRow = {
+  day: string
+  baseCity: string
+  morning: string
+  afternoon: string
+  evening: string
+  hotel: string
+}
+
+function parseItineraryTable(text: string): ItineraryRow[] {
+  const lines = text.split('\n').map(line => line.trim()).filter(line => line.startsWith('|'))
+  if (lines.length < 3) return []
+
+  const cells = (line: string) => line.replace(/^\|/, '').replace(/\|$/, '').split('|').map(cell => cell.trim().replace(/\\\|/g, '|').replace(/\*\*/g, '').replace(/^`|`$/g, ''))
+  const header = cells(lines[0]).map(cell => cell.toLowerCase())
+  if (!header.some(cell => cell.includes('day')) || !header.some(cell => cell.includes('morning'))) return []
+  const column = (...keys: string[]) => header.findIndex(cell => keys.some(key => cell.includes(key)))
+  const indexes = {
+    day: column('day'),
+    baseCity: column('base city', 'city'),
+    morning: column('morning'),
+    afternoon: column('afternoon'),
+    evening: column('evening'),
+    hotel: column('hotel', 'nightly rate', 'accommodation'),
+  }
+  return lines.slice(2).map(line => {
+    const row = cells(line)
+    const value = (index: number) => index >= 0 ? (row[index] || '').trim() : ''
+    return {
+      day: value(indexes.day),
+      baseCity: value(indexes.baseCity),
+      morning: value(indexes.morning),
+      afternoon: value(indexes.afternoon),
+      evening: value(indexes.evening),
+      hotel: value(indexes.hotel),
+    }
+  }).filter(row => row.day)
+}
+
 // Symbols for time-of-day labels
 const TIME_SYMBOLS: Record<string, string> = {
   morning: '△',
@@ -70,7 +109,7 @@ function SectionCard({ id, title, sub, children }: {
   return (
     <section
       id={id}
-      className="py-12 border-t"
+      className="py-12 border-t scroll-mt-[132px]"
       style={{ borderColor: 'rgba(255,255,255,0.07)' }}
     >
       <h2
@@ -143,6 +182,7 @@ export default function ResultPage() {
   const overviewSec = sections[0]
   const highlightSec = find('highlight', 'vibe', 'neighborhood', 'neighbourhood', 'overview')
   const itinerarySec = find('itinerary', 'day', 'schedule')
+  const itineraryRows = parseItineraryTable(itinerarySec?.content.join('\n') || '')
   const hotelSec = find('hotel', 'stay', 'accommodation', 'lodging', 'where to stay')
   const budgetSec = find('budget', 'cost', 'spending', 'expense')
   const weatherSec = find('weather', 'pack', 'what to bring', 'climate')
@@ -299,7 +339,7 @@ export default function ResultPage() {
         </div>
 
         {/* ── OVERVIEW ──────────────────────────────────────────────────── */}
-        <div id="overview" className="pb-12">
+        <div id="overview" className="pb-12 scroll-mt-[132px]">
           <p className="text-xs font-medium uppercase tracking-widest mb-3" style={{ color: '#9d998d', letterSpacing: '0.12em' }}>
             Your custom travel guide
           </p>
@@ -357,7 +397,48 @@ export default function ResultPage() {
 
         {/* ── ITINERARY ─────────────────────────────────────────────────── */}
         <SectionCard id="itinerary" title="Day-by-day" sub="Pick a day to see how it flows.">
-          {days.length > 0 ? (
+          {itineraryRows.length > 0 ? (
+            <div className="space-y-4">
+              <div className="hidden lg:block overflow-x-auto rounded-2xl border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                <table className="w-full min-w-[1050px] border-collapse text-left">
+                  <thead style={{ background: '#151517' }}>
+                    <tr>
+                      {['Day', 'Base city', 'Morning', 'Afternoon', 'Evening', 'Luxury hotel · nightly rate'].map(label => (
+                        <th key={label} className="px-4 py-3 text-[10px] uppercase tracking-[0.12em] font-semibold align-top" style={{ color: '#9d998d', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{label}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {itineraryRows.map((row, index) => (
+                      <tr key={`${row.day}-${index}`} style={{ background: index % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent' }}>
+                        <th scope="row" className="px-4 py-4 text-sm font-semibold whitespace-nowrap align-top" style={{ color: '#ff9a83', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>{row.day}</th>
+                        <td className="px-4 py-4 text-sm font-medium align-top" style={{ color: '#f2efe8', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>{row.baseCity || '—'}</td>
+                        {[row.morning, row.afternoon, row.evening, row.hotel].map((value, cellIndex) => (
+                          <td key={cellIndex} className="px-4 py-4 text-sm leading-relaxed align-top" style={{ color: 'rgba(242,239,232,0.78)', borderBottom: '1px solid rgba(255,255,255,0.06)', minWidth: cellIndex === 3 ? '220px' : '190px' }}>{value || '—'}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:hidden">
+                {itineraryRows.map((row, index) => (
+                  <article key={`${row.day}-card-${index}`} className="rounded-2xl p-5 space-y-4" style={{ background: '#151517', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="m-0 text-base font-semibold" style={{ color: '#f2efe8' }}>{row.day}</h3>
+                      {row.baseCity && <span className="rounded-full px-2.5 py-1 text-[11px] text-right" style={{ color: '#ff9a83', background: 'rgba(255,106,82,0.1)' }}>{row.baseCity}</span>}
+                    </div>
+                    {([['Morning', row.morning], ['Afternoon', row.afternoon], ['Evening', row.evening], ['Hotel', row.hotel]] as const).filter(([, value]) => value).map(([label, value]) => (
+                      <div key={label}>
+                        <p className="mb-1 text-[10px] uppercase tracking-[0.12em]" style={{ color: '#9d998d' }}>{label}</p>
+                        <p className="m-0 text-sm leading-relaxed" style={{ color: 'rgba(242,239,232,0.82)' }}>{value}</p>
+                      </div>
+                    ))}
+                  </article>
+                ))}
+              </div>
+            </div>
+          ) : days.length > 0 ? (
             <>
               {/* Day tabs */}
               <div className="flex gap-2 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>

@@ -131,9 +131,10 @@ Travel_advisor/
    Create or edit the `.env` file in the project root:
    ```env
    OPENROUTER_API_KEY="your-openrouter-api-key-here"
+   OPENROUTER_API_KEY_2="your-second-openrouter-api-key-here"
    OPENROUTER_MODEL="openai/gpt-oss-120b"
    ```
-   > *OPENROUTER_MODEL is optional; it defaults to `openai/gpt-oss-120b`. Choose a model ID available on OpenRouter. A missing key or unavailable model is reported as an error; the planner does not generate placeholder recommendations.*
+   > *OPENROUTER_API_KEY_2 is optional. Destination research, itinerary planning, and guide compilation use the first key; budget, hotel, and weather agents use the second, falling back to the first when the second is not set. OPENROUTER_MODEL is optional and defaults to `openai/gpt-oss-120b`. Choose a model ID available on OpenRouter. A missing key or unavailable model is reported as an error; the planner does not generate placeholder recommendations.*
 
 5. **Start the FastAPI server**:
    ```bash

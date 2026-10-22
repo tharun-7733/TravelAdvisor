@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import HeroPage from './pages/HeroPage'
 import PlanPage from './pages/PlanPage'
 import ResultPage from './pages/ResultPage'
@@ -11,6 +11,7 @@ export default function App() {
       <Route path="/plan" element={<PlanPage />} />
       <Route path="/result" element={<ResultPage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

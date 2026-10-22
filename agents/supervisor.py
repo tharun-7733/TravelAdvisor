@@ -1,5 +1,5 @@
 from langchain_core.messages import SystemMessage, HumanMessage
-from LLM import llm
+from LLM import llm_for_agent
 
 def run_supervisor(state: dict) -> dict:
     completed = state.get("completed_agents", [])
@@ -35,5 +35,5 @@ f"HOTELS: {hotel}\n"
 f"WEATHER: {weather}\n\n"
 f"Write a unified guide with clear sections. Keep it personal and practical.")
 
-    response = llm.invoke([system, human])
+    response = llm_for_agent("compile").invoke([system, human])
     return {**state, "final_plan": response.content, "completed_agents": state.get("completed_agents", []) + ["compile"]}

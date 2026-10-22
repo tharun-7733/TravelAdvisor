@@ -1,5 +1,5 @@
 from langchain_core.messages import SystemMessage, HumanMessage
-from LLM import llm
+from LLM import llm_for_agent
 
 def run_budget_agent(state: dict) -> dict:
     destination = state["destination"]
@@ -18,5 +18,5 @@ f"Itinerary snippet: {itinerary} "
 f"Cover: flights, accommodation/night, food/day, activities, transport, misc, and total. "
 f"Give a single realistic range per category.")
 
-    response = llm.invoke([system, human])
+    response = llm_for_agent("budget_agent").invoke([system, human])
     return {**state, "budget_estimate": response.content}

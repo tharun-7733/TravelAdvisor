@@ -1,5 +1,5 @@
 from langchain_core.messages import SystemMessage, HumanMessage
-from LLM import llm
+from LLM import llm_for_agent
 from agents.weather_provider import WeatherDataError, fetch_trip_weather
 
 def run_weather_agent(state: dict) -> dict:
@@ -26,5 +26,5 @@ Describe the observed/forecast temperature and conditions by day, mention sunris
 and give practical packing or itinerary advice grounded in these values. Make clear whether the data is
 historical or forecast. Do not claim humidity or other values absent from the data.""")
 
-    response = llm.invoke([system, human])
+    response = llm_for_agent("weather_agent").invoke([system, human])
     return {**state, "weather_info": response.content}
