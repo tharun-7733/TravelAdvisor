@@ -124,16 +124,16 @@ Travel_advisor/
 
 3. **Install Python dependencies**:
    ```bash
-   pip install fastapi uvicorn langgraph langchain langchain-core langchain-groq pydantic python-dotenv
+   pip install fastapi uvicorn langgraph langchain langchain-core langchain-openai pydantic python-dotenv
    ```
 
 4. **Configure Environment Variables**:
    Create or edit the `.env` file in the project root:
    ```env
-   GROQ_API_KEY="your-groq-api-key-here"
-   GROQ_MODEL="openai/gpt-oss-120b"
+   OPENROUTER_API_KEY="your-openrouter-api-key-here"
+   OPENROUTER_MODEL="openai/gpt-oss-120b"
    ```
-   > *GROQ_MODEL is optional; it defaults to `openai/gpt-oss-120b`. Choose a model enabled for your Groq account. A missing key or unavailable model is reported as an error; the planner does not generate placeholder recommendations.*
+   > *OPENROUTER_MODEL is optional; it defaults to `openai/gpt-oss-120b`. Choose a model ID available on OpenRouter. A missing key or unavailable model is reported as an error; the planner does not generate placeholder recommendations.*
 
 5. **Start the FastAPI server**:
    ```bash
@@ -231,5 +231,11 @@ Healthcheck endpoint returning server status.
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 19, TypeScript, Tailwind CSS v4, Lucide React, React Router v7, React Markdown.
-- **Backend**: FastAPI, Uvicorn, LangGraph, LangChain, Groq SDK.
-- **LLM**: Groq model configured by `GROQ_MODEL` (defaults to `openai/gpt-oss-120b`).
+- **Backend**: FastAPI, Uvicorn, LangGraph, LangChain, OpenAI-compatible client for OpenRouter.
+- **LLM**: OpenRouter model configured by `OPENROUTER_MODEL` (defaults to `openai/gpt-oss-120b`).
+
+---
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).
