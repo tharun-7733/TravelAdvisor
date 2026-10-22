@@ -38,7 +38,7 @@ function sectionIdForHeading(heading: string) {
   if (/itinerary|day.by.day|schedule/.test(value)) return 'itinerary'
   if (/budget|cost|spend|expense/.test(value)) return 'budget'
   if (/where to stay|hotel|accommodation|lodging/.test(value)) return 'stay'
-  if (/weather|packing|climate/.test(value)) return 'pack'
+  if (/weather|packing|what to pack|\bpack\b|climate/.test(value)) return 'pack'
   return undefined
 }
 
@@ -144,6 +144,15 @@ export default function ResultPage() {
   const guideBody = md.replace(/^#\s+[^\n]+\n*/, '')
   const chips = [data.travel_dates, data.budget?.replace(/-/g, ' '), data.travelers ? `${data.travelers} traveler${data.travelers === 1 ? '' : 's'}` : null].filter(Boolean)
 
+  const scrollToSection = (event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    event.preventDefault()
+    const target = document.getElementById(id)
+    if (!target) return
+    setActiveSection(id)
+    const top = target.getBoundingClientRect().top + window.scrollY - 132
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
+  }
+
   const handleCopy = () => {
     navigator.clipboard.writeText(md).then(() => {
       setCopied(true)
@@ -156,7 +165,7 @@ export default function ResultPage() {
       <Header />
       <div className="fixed left-0 right-0 top-[72px] z-40 border-b" style={{ background: 'rgba(10,10,11,0.88)', backdropFilter: 'blur(14px)', borderColor: 'rgba(255,255,255,0.07)' }}>
         <nav aria-label="Guide sections" className="mx-auto flex h-12 max-w-5xl items-center gap-1 overflow-x-auto px-4" style={{ scrollbarWidth: 'none' }}>
-          {NAV_ITEMS.map(({ id, label }) => <a key={id} href={`#${id}`} className="whitespace-nowrap rounded-full px-3 py-1.5 text-xs transition-colors" style={{ color: activeSection === id ? '#ff9a83' : '#9d998d', background: activeSection === id ? 'rgba(255,106,82,0.12)' : 'transparent' }}>{label}</a>)}
+          {NAV_ITEMS.map(({ id, label }) => <a key={id} href={`#${id}`} onClick={event => scrollToSection(event, id)} aria-current={activeSection === id ? 'location' : undefined} className="whitespace-nowrap rounded-full px-3 py-1.5 text-xs transition-colors" style={{ color: activeSection === id ? '#ff9a83' : '#9d998d', background: activeSection === id ? 'rgba(255,106,82,0.12)' : 'transparent' }}>{label}</a>)}
         </nav>
       </div>
 
