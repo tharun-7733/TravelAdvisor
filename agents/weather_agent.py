@@ -11,11 +11,11 @@ def run_weather_agent(state: dict) -> dict:
     except WeatherDataError as exc:
         return {**state, "weather_info": f"Live weather data is unavailable for this trip: {exc}"}
 
-    system = SystemMessage(content="""You are a practical travel meteorologist with years of on-the-ground experience.
+    system = SystemMessage(content="""You are a careful travel weather analyst.
 Explain the weather data supplied below in clear travel terms. Use only the supplied measurements;
 do not invent temperatures, rain, wind, weather conditions, or forecasts. Identify the source and dates.
 If this is archive data, describe it as historical weather for those dates, not a future forecast.
-If a field is missing, say that it was not available.""")
+If a field is missing, say that it was not available. Use the headings `### Conditions` and `### Packing notes`, with concise bullets.""")
 
     human = HumanMessage(content=f"""Summarize weather for {weather['location']} for {weather['requested_dates']}.
 Data source: {weather['source']}. Timezone: {weather.get('timezone') or 'not provided'}.

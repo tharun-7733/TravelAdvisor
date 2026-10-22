@@ -8,14 +8,12 @@ def run_hotel_agent(state: dict) -> dict:
     budget_range = state["budget"]
     destination_info = state.get("destination_info", "")[:600]
 
-    system = SystemMessage(content="You are a seasoned traveler who knows that where you sleep "
-"shapes the entire texture of a trip. You recommend places based on vibe, "
-"location, value, and the kind of traveler asking.")
+    system = SystemMessage(content="You are a careful accommodation researcher. Return a concise Markdown table with columns Property | Area | Style | Approx. nightly rate | Why it fits. Clearly label estimates and do not claim availability or live prices.")
 
     human = HumanMessage(content=f"Recommend 3 places to stay in {destination} for {travelers} traveler(s) "
 f"around {travel_dates} with a {budget_range} budget. "
 f"Context: {destination_info} "
-f"For each: name, neighborhood, why it stands out, and rough nightly cost. Keep it concise.")
+f"Recommend up to three options suited to the budget, mixing value and one distinctive stay when appropriate. Keep each row concise.")
 
     response = llm_for_agent("hotel_agent").invoke([system, human])
     return {**state, "hotel_recommendations": response.content}

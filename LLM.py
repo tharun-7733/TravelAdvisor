@@ -1,16 +1,18 @@
 import os
+import logging
 import time
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 
 class RateLimitedLLM:
     """Call the configured provider and surface failures instead of fabricating results."""
 
-    def __init__(self, api_key: str, key_name: str, max_tokens: int, delay_seconds: float = 1.0):
+    def __init__(self, api_key: str, key_name: str, max_tokens: int, delay_seconds: float = 1.0, configuration_error: str | None = None):
         self.delay_seconds = delay_seconds
         self.key_name = key_name
         self.client = None
@@ -18,8 +20,8 @@ class RateLimitedLLM:
         self.model = os.getenv("OPENROUTER_MODEL", "openai/gpt-oss-120b").strip()
         self.max_tokens = max_tokens
 
-        if not api_key:
-            self.configuration_error = f"{key_name} is not configured. Add it to the backend environment and restart the server."
+        if not api_key or configuration_error:
+            self.configuration_error = configuration_error or f"{key_name} is not configured. Add it to the backend environment and restart the server."
             return
 
         try:
@@ -67,30 +69,30 @@ _KEYS = {
     "secondary": ("OPENROUTER_API_KEY_2", os.getenv("OPENROUTER_API_KEY_2", "").strip()),
 }
 
-# Keep the six-call workflow balanced across the two keys. The compiler and
-# itinerary get larger output budgets; short research tasks stay tightly capped.
+# Keep specialist calls split across both keys. The itinerary gets extra room
+# for longer trips; the remaining tasks stay concise.
 _AGENT_CONFIG = {
-    "destination_agent": ("primary", 400),
-    "itinerary_agent": ("primary", 550),
-    "budget_agent": ("secondary", 350),
-    "hotel_agent": ("secondary", 350),
-    "weather_agent": ("secondary", 250),
-    "compile": ("primary", 900),
+    "destination_agent": ("primary", 500),
+    "itinerary_agent": ("secondary", 1800),
+    "budget_agent": ("primary", 400),
+    "hotel_agent": ("primary", 450),
+    "weather_agent": ("secondary", 350),
 }
 _clients: dict[tuple[str, int], RateLimitedLLM] = {}
 
 
 def llm_for_agent(agent_name: str) -> RateLimitedLLM:
-    """Return the assigned client, falling back to the other configured key."""
+    """Return the client assigned to this agent; never silently reuse the other key."""
     key_slot, max_tokens = _AGENT_CONFIG[agent_name]
     key_name, api_key = _KEYS[key_slot]
+    configuration_error = None
     if not api_key:
-        fallback_slot = "secondary" if key_slot == "primary" else "primary"
-        fallback_name, fallback_key = _KEYS[fallback_slot]
-        if fallback_key:
-            key_name, api_key = fallback_name, fallback_key
+        configuration_error = f"{key_name} is required for {agent_name}. Configure it in the backend environment and restart the server."
+    elif key_slot == "secondary" and _KEYS["primary"][1] and api_key == _KEYS["primary"][1]:
+        configuration_error = "OPENROUTER_API_KEY_2 must contain a different key from OPENROUTER_API_KEY."
 
     cache_key = (key_name, max_tokens)
     if cache_key not in _clients:
-        _clients[cache_key] = RateLimitedLLM(api_key, key_name, max_tokens)
+        _clients[cache_key] = RateLimitedLLM(api_key if not configuration_error else "", key_name, max_tokens, configuration_error=configuration_error)
+    logger.info("Routing %s through %s", agent_name, key_name)
     return _clients[cache_key]

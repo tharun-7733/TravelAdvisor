@@ -134,7 +134,7 @@ Travel_advisor/
    OPENROUTER_API_KEY_2="your-second-openrouter-api-key-here"
    OPENROUTER_MODEL="openai/gpt-oss-120b"
    ```
-   > *OPENROUTER_API_KEY_2 is optional. Destination research, itinerary planning, and guide compilation use the first key; budget, hotel, and weather agents use the second, falling back to the first when the second is not set. OPENROUTER_MODEL is optional and defaults to `openai/gpt-oss-120b`. Choose a model ID available on OpenRouter. A missing key or unavailable model is reported as an error; the planner does not generate placeholder recommendations.*
+   > *Both API keys are required and must be distinct. Destination research, budget analysis, and hotel recommendations use `OPENROUTER_API_KEY`; itinerary and weather agents use `OPENROUTER_API_KEY_2`. The backend reports a configuration error instead of silently sending every agent through one key. The final guide is assembled from these agent results without an extra model call. OPENROUTER_MODEL is optional and defaults to `openai/gpt-oss-120b`. Choose a model ID available on OpenRouter.*
 
 5. **Start the FastAPI server**:
    ```bash
