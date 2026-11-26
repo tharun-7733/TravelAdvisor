@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, Copy, Check } from 'lucide-react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import Header from '../components/Header'
+import React from 'react'
 
 interface ResultData {
   final_plan: string
