@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Children, isValidElement, type ReactNode } from 'react'
 import { ArrowLeft, Copy, Check } from 'lucide-react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import Header from '../components/Header'
@@ -22,10 +22,10 @@ const NAV_ITEMS = [
   { id: 'pack', label: 'Weather & packing' },
 ]
 
-function textFromChildren(children: React.ReactNode): string {
-  return React.Children.toArray(children).map(child => {
+function textFromChildren(children: ReactNode): string {
+  return Children.toArray(children).map(child => {
     if (typeof child === 'string' || typeof child === 'number') return String(child)
-    if (React.isValidElement<{ children?: React.ReactNode }>(child)) return textFromChildren(child.props.children)
+    if (isValidElement<{ children?: ReactNode }>(child)) return textFromChildren(child.props.children)
     return ''
   }).join('')
 }
