@@ -36,10 +36,12 @@ class RateLimitedLLM:
         except Exception as exc:
             self.configuration_error = f"Could not initialize the OpenRouter client: {exc}"
 
-    def invoke(self, messages, *args, **kwargs):
+    def _ensure_client(self):
         if self.client is None:
             raise RuntimeError(self.configuration_error or "The OpenRouter client is unavailable.")
 
+    def invoke(self, messages, *args, **kwargs):
+        self._ensure_client()
         time.sleep(self.delay_seconds)
         try:
             return self.client.invoke(messages, *args, **kwargs)
@@ -60,6 +62,40 @@ class RateLimitedLLM:
             time.sleep(3.0)
             try:
                 return self.client.invoke(messages, *args, **kwargs)
+            except Exception as retry_error:
+                raise RuntimeError(f"OpenRouter request failed after retry: {retry_error}") from retry_error
+
+    def bind_tools(self, tools):
+        """Return a copy of this wrapper whose underlying ChatOpenAI has tools bound."""
+        self._ensure_client()
+        bound = _ToolBoundLLM(self, tools)
+        return bound
+
+
+class _ToolBoundLLM:
+    """Thin wrapper that delegates .invoke() to a tool-bound ChatOpenAI but
+    keeps the rate-limiting and retry logic from RateLimitedLLM."""
+
+    def __init__(self, parent: RateLimitedLLM, tools: list):
+        self._parent = parent
+        self._bound_client = parent.client.bind_tools(tools)
+        self.key_name = parent.key_name
+
+    def invoke(self, messages, *args, **kwargs):
+        self._parent._ensure_client()
+        time.sleep(self._parent.delay_seconds)
+        try:
+            return self._bound_client.invoke(messages, *args, **kwargs)
+        except Exception as first_error:
+            message = str(first_error).lower()
+            if any(term in message for term in ("invalid_api_key", "invalid api key", "401", "unauthenticated")):
+                raise RuntimeError(f"OpenRouter rejected {self.key_name}. Check the backend environment variable.") from first_error
+            transient = any(term in message for term in ("429", "500", "502", "503", "504", "timeout", "timed out", "connection error"))
+            if not transient:
+                raise RuntimeError(f"OpenRouter request failed: {first_error}") from first_error
+            time.sleep(3.0)
+            try:
+                return self._bound_client.invoke(messages, *args, **kwargs)
             except Exception as retry_error:
                 raise RuntimeError(f"OpenRouter request failed after retry: {retry_error}") from retry_error
 
@@ -96,3 +132,13 @@ def llm_for_agent(agent_name: str) -> RateLimitedLLM:
         _clients[cache_key] = RateLimitedLLM(api_key if not configuration_error else "", key_name, max_tokens, configuration_error=configuration_error)
     logger.info("Routing %s through %s", agent_name, key_name)
     return _clients[cache_key]
+
+
+def llm_with_tools(agent_name: str):
+    """Return an LLM client with the agent's tools already bound for tool-calling."""
+    from agents.tools import AGENT_TOOLS
+    llm = llm_for_agent(agent_name)
+    tools = AGENT_TOOLS.get(agent_name, [])
+    if tools:
+        return llm.bind_tools(tools), tools
+    return llm, []
